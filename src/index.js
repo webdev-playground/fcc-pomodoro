@@ -32,6 +32,7 @@ class App extends React.Component {
           durationID="session-length"
         />
         <Countdown label="Session" timeLeft={25} labelID="timer-label" timeLeftID="time-left" />
+        <Controls startStopID="start_stop" resetID="reset" />
       </div>
     );
   }
@@ -87,8 +88,26 @@ Countdown.propTypes = {
   timeLeftID: PropTypes.string.isRequired
 };
 
-function Controls(props) {
-  return <div className="controls">Controls</div>;
+function Controls({ startStopID, resetID }) {
+  return (
+    <div className="controls">
+      <div className="controls__start-stop">
+        <button id={startStopID} type="submit">
+          Start/Stop
+        </button>
+      </div>
+      <div className="controls__reset">
+        <button id={resetID} type="submit">
+          Reset
+        </button>
+      </div>
+    </div>
+  );
 }
+
+Controls.propTypes = {
+  startStopID: PropTypes.string.isRequired,
+  resetID: PropTypes.string.isRequired
+};
 
 ReactDOM.render(<App />, document.getElementById('root'));
