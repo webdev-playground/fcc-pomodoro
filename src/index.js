@@ -31,19 +31,13 @@ class App extends React.Component {
           incrementID="session-increment"
           durationID="session-length"
         />
+        <Countdown label="Session" timeLeft={25} labelID="timer-label" timeLeftID="time-left" />
       </div>
     );
   }
 }
 
-function Duration({
-  label,
-  value,
-  labelID,
-  decrementID,
-  incrementID,
-  durationID,
-}) {
+function Duration({ label, value, labelID, decrementID, incrementID, durationID }) {
   return (
     <div className="duration">
       <div id={labelID} className="duration__label">
@@ -70,12 +64,28 @@ Duration.propTypes = {
   labelID: PropTypes.string.isRequired,
   decrementID: PropTypes.string.isRequired,
   incrementID: PropTypes.string.isRequired,
-  durationID: PropTypes.string.isRequired,
+  durationID: PropTypes.string.isRequired
 };
 
-function Countdown(props) {
-  return <div className="countdown">Countdown</div>;
+function Countdown({ label, timeLeft, labelID, timeLeftID }) {
+  return (
+    <div className="countdown">
+      <div id={labelID} className="countdown__label">
+        {label}
+      </div>
+      <div id={timeLeftID} className="countdown__time-left">
+        {timeLeft}
+      </div>
+    </div>
+  );
 }
+
+Countdown.propTypes = {
+  label: PropTypes.string.isRequired,
+  timeLeft: PropTypes.number.isRequired,
+  labelID: PropTypes.string.isRequired,
+  timeLeftID: PropTypes.string.isRequired
+};
 
 function Controls(props) {
   return <div className="controls">Controls</div>;
