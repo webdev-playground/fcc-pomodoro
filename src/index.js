@@ -17,17 +17,23 @@ function secondsToMMSS(secs) {
 class App extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {};
+    this.state = {
+      defaultBreakLength: 5,
+      defaultSessionLength: 25,
+      breakLength: 5,
+      sessionLength: 25,
+      timeLeftInSeconds: 25 * 60
+    };
   }
 
   render() {
-    const timeLeftInSeconds = 25 * 60;
+    const { timeLeftInSeconds, breakLength, sessionLength } = this.state;
     return (
       <div className="app">
         <h1 className="app__title">Pomodoro Clock</h1>
         <Duration
           label="Break Length"
-          value={5}
+          value={breakLength}
           labelID="break-label"
           decrementID="break-decrement"
           incrementID="break-increment"
@@ -35,7 +41,7 @@ class App extends React.Component {
         />
         <Duration
           label="Session Length"
-          value={25}
+          value={sessionLength}
           labelID="session-label"
           decrementID="session-decrement"
           incrementID="session-increment"
