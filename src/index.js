@@ -22,7 +22,10 @@ class App extends React.Component {
       defaultSessionLength: 25,
       breakLength: 5,
       sessionLength: 25,
-      timeLeftInSeconds: 25 * 60
+      timeLeftInSeconds: 25 * 60,
+      isPlaying: false,
+      isSession: true,
+      timeoutRef: null
     };
 
     this.handleDecrementBreakLength = this.handleDecrementBreakLength.bind(this);
@@ -30,41 +33,141 @@ class App extends React.Component {
     this.handleIncrementBreakLength = this.handleIncrementBreakLength.bind(this);
     this.handleIncrementSessionLength = this.handleIncrementSessionLength.bind(this);
     this.handleReset = this.handleReset.bind(this);
+    this.handleStartStop = this.handleStartStop.bind(this);
+    this.start = this.start.bind(this);
+    this.stop = this.stop.bind(this);
+    this.decrementTimeLeft = this.decrementTimeLeft.bind(this);
   }
 
   handleDecrementBreakLength() {
-    this.setState(state => ({
-      breakLength: Math.max(1, state.breakLength - 1)
-    }));
+    const { isPlaying, isSession } = this.state;
+    if (isPlaying) return;
+
+    if (!isSession) {
+      this.setState(state => {
+        const breakLength = Math.max(1, state.breakLength - 1);
+        return { breakLength, timeLeftInSeconds: breakLength * 60 };
+      });
+    } else {
+      this.setState(state => {
+        const breakLength = Math.max(1, state.breakLength - 1);
+        return { breakLength };
+      });
+    }
   }
 
   handleDecrementSessionLength() {
-    this.setState(state => ({
-      sessionLength: Math.max(1, state.sessionLength - 1)
-    }));
+    const { isPlaying, isSession } = this.state;
+    if (isPlaying) return;
+
+    if (isSession) {
+      this.setState(state => {
+        const sessionLength = Math.max(1, state.sessionLength - 1);
+        return { sessionLength, timeLeftInSeconds: sessionLength * 60 };
+      });
+    } else {
+      this.setState(state => {
+        const sessionLength = Math.max(1, state.sessionLength - 1);
+        return { sessionLength };
+      });
+    }
   }
 
   handleIncrementBreakLength() {
-    this.setState(state => ({
-      breakLength: Math.min(60, state.breakLength + 1)
-    }));
+    const { isPlaying, isSession } = this.state;
+    if (isPlaying) return;
+
+    if (!isSession) {
+      this.setState(state => {
+        const breakLength = Math.min(60, state.breakLength + 1);
+        return { breakLength, timeLeftInSeconds: breakLength * 60 };
+      });
+    } else {
+      this.setState(state => {
+        const breakLength = Math.min(60, state.breakLength + 1);
+        return { breakLength };
+      });
+    }
   }
 
   handleIncrementSessionLength() {
-    this.setState(state => ({
-      sessionLength: Math.min(60, state.sessionLength + 1)
-    }));
+    const { isPlaying, isSession } = this.state;
+    if (isPlaying) return;
+
+    if (isSession) {
+      this.setState(state => {
+        const sessionLength = Math.min(60, state.sessionLength + 1);
+        return { sessionLength, timeLeftInSeconds: sessionLength * 60 };
+      });
+    } else {
+      this.setState(state => {
+        const sessionLength = Math.min(60, state.sessionLength + 1);
+        return { sessionLength };
+      });
+    }
   }
 
   handleReset() {
+    this.stop();
+
     this.setState(state => ({
       breakLength: state.defaultBreakLength,
-      sessionLength: state.defaultSessionLength
+      sessionLength: state.defaultSessionLength,
+      timeLeftInSeconds: state.defaultSessionLength * 60,
+      isSession: true
     }));
   }
 
+  handleStartStop() {
+    const { isPlaying } = this.state;
+    if (isPlaying) {
+      this.stop();
+    } else {
+      this.start();
+    }
+  }
+
+  start() {
+    this.setState({
+      isPlaying: true,
+      timeoutRef: setTimeout(() => {
+        this.decrementTimeLeft();
+      }, 1000)
+    });
+  }
+
+  stop() {
+    const { timeoutRef } = this.state;
+    clearTimeout(timeoutRef);
+    this.setState({
+      isPlaying: false,
+      timeoutRef: null
+    });
+  }
+
+  decrementTimeLeft() {
+    this.setState(state => {
+      let { timeLeftInSeconds, isSession } = state;
+      const { sessionLength, breakLength } = state;
+      timeLeftInSeconds -= 1;
+      if (timeLeftInSeconds < 0) {
+        if (isSession) {
+          isSession = false;
+          timeLeftInSeconds = breakLength * 60;
+        } else {
+          isSession = true;
+          timeLeftInSeconds = sessionLength * 60;
+        }
+      }
+
+      return { timeLeftInSeconds, isSession };
+    });
+
+    this.start();
+  }
+
   render() {
-    const { timeLeftInSeconds, breakLength, sessionLength } = this.state;
+    const { timeLeftInSeconds, breakLength, sessionLength, isSession } = this.state;
     return (
       <div className="app">
         <h1 className="app__title">Pomodoro Clock</h1>
@@ -89,12 +192,17 @@ class App extends React.Component {
           onIncrementClick={this.handleIncrementSessionLength}
         />
         <Countdown
-          label="Session"
+          label={isSession ? 'Session' : 'Break'}
           timeLeft={timeLeftInSeconds}
           labelID="timer-label"
           timeLeftID="time-left"
         />
-        <Controls startStopID="start_stop" resetID="reset" onResetClick={this.handleReset} />
+        <Controls
+          startStopID="start_stop"
+          resetID="reset"
+          onResetClick={this.handleReset}
+          onStartStopClick={this.handleStartStop}
+        />
       </div>
     );
   }
@@ -172,11 +280,11 @@ Countdown.propTypes = {
   timeLeftID: PropTypes.string.isRequired
 };
 
-function Controls({ startStopID, resetID, onResetClick }) {
+function Controls({ startStopID, resetID, onResetClick, onStartStopClick }) {
   return (
     <div className="controls">
       <div className="controls__start-stop">
-        <button id={startStopID} type="submit">
+        <button id={startStopID} type="submit" onClick={onStartStopClick}>
           Start/Stop
         </button>
       </div>
@@ -192,7 +300,8 @@ function Controls({ startStopID, resetID, onResetClick }) {
 Controls.propTypes = {
   startStopID: PropTypes.string.isRequired,
   resetID: PropTypes.string.isRequired,
-  onResetClick: PropTypes.func.isRequired
+  onResetClick: PropTypes.func.isRequired,
+  onStartStopClick: PropTypes.func.isRequired
 };
 
 ReactDOM.render(<App />, document.getElementById('root'));
