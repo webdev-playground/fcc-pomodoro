@@ -24,6 +24,43 @@ class App extends React.Component {
       sessionLength: 25,
       timeLeftInSeconds: 25 * 60
     };
+
+    this.handleDecrementBreakLength = this.handleDecrementBreakLength.bind(this);
+    this.handleDecrementSessionLength = this.handleDecrementSessionLength.bind(this);
+    this.handleIncrementBreakLength = this.handleIncrementBreakLength.bind(this);
+    this.handleIncrementSessionLength = this.handleIncrementSessionLength.bind(this);
+    this.handleReset = this.handleReset.bind(this);
+  }
+
+  handleDecrementBreakLength() {
+    this.setState(state => ({
+      breakLength: Math.max(1, state.breakLength - 1)
+    }));
+  }
+
+  handleDecrementSessionLength() {
+    this.setState(state => ({
+      sessionLength: Math.max(1, state.sessionLength - 1)
+    }));
+  }
+
+  handleIncrementBreakLength() {
+    this.setState(state => ({
+      breakLength: Math.min(60, state.breakLength + 1)
+    }));
+  }
+
+  handleIncrementSessionLength() {
+    this.setState(state => ({
+      sessionLength: Math.min(60, state.sessionLength + 1)
+    }));
+  }
+
+  handleReset() {
+    this.setState(state => ({
+      breakLength: state.defaultBreakLength,
+      sessionLength: state.defaultSessionLength
+    }));
   }
 
   render() {
@@ -38,6 +75,8 @@ class App extends React.Component {
           decrementID="break-decrement"
           incrementID="break-increment"
           durationID="break-length"
+          onDecrementClick={this.handleDecrementBreakLength}
+          onIncrementClick={this.handleIncrementBreakLength}
         />
         <Duration
           label="Session Length"
@@ -46,6 +85,8 @@ class App extends React.Component {
           decrementID="session-decrement"
           incrementID="session-increment"
           durationID="session-length"
+          onDecrementClick={this.handleDecrementSessionLength}
+          onIncrementClick={this.handleIncrementSessionLength}
         />
         <Countdown
           label="Session"
@@ -53,26 +94,45 @@ class App extends React.Component {
           labelID="timer-label"
           timeLeftID="time-left"
         />
-        <Controls startStopID="start_stop" resetID="reset" />
+        <Controls startStopID="start_stop" resetID="reset" onResetClick={this.handleReset} />
       </div>
     );
   }
 }
 
-function Duration({ label, value, labelID, decrementID, incrementID, durationID }) {
+function Duration({
+  label,
+  value,
+  labelID,
+  decrementID,
+  incrementID,
+  durationID,
+  onDecrementClick,
+  onIncrementClick
+}) {
   return (
     <div className="duration">
       <div id={labelID} className="duration__label">
         {label}
       </div>
       <div className="duration__controls">
-        <button id={decrementID} className="duration__button" type="submit">
+        <button
+          id={decrementID}
+          className="duration__button"
+          type="submit"
+          onClick={onDecrementClick}
+        >
           -
         </button>
         <div id={durationID} className="duration__value">
           {value}
         </div>
-        <button id={incrementID} className="duration__button" type="submit">
+        <button
+          id={incrementID}
+          className="duration__button"
+          type="submit"
+          onClick={onIncrementClick}
+        >
           +
         </button>
       </div>
@@ -86,7 +146,9 @@ Duration.propTypes = {
   labelID: PropTypes.string.isRequired,
   decrementID: PropTypes.string.isRequired,
   incrementID: PropTypes.string.isRequired,
-  durationID: PropTypes.string.isRequired
+  durationID: PropTypes.string.isRequired,
+  onDecrementClick: PropTypes.func.isRequired,
+  onIncrementClick: PropTypes.func.isRequired
 };
 
 function Countdown({ label, timeLeft, labelID, timeLeftID }) {
@@ -110,7 +172,7 @@ Countdown.propTypes = {
   timeLeftID: PropTypes.string.isRequired
 };
 
-function Controls({ startStopID, resetID }) {
+function Controls({ startStopID, resetID, onResetClick }) {
   return (
     <div className="controls">
       <div className="controls__start-stop">
@@ -119,7 +181,7 @@ function Controls({ startStopID, resetID }) {
         </button>
       </div>
       <div className="controls__reset">
-        <button id={resetID} type="submit">
+        <button id={resetID} type="submit" onClick={onResetClick}>
           Reset
         </button>
       </div>
@@ -129,7 +191,8 @@ function Controls({ startStopID, resetID }) {
 
 Controls.propTypes = {
   startStopID: PropTypes.string.isRequired,
-  resetID: PropTypes.string.isRequired
+  resetID: PropTypes.string.isRequired,
+  onResetClick: PropTypes.func.isRequired
 };
 
 ReactDOM.render(<App />, document.getElementById('root'));
