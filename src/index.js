@@ -5,6 +5,15 @@ import ReactDOM from 'react-dom';
 import './index.css';
 import './index.scss';
 
+function secondsToMMSS(secs) {
+  const minutes = Math.floor(secs / 60);
+  const seconds = secs % 60;
+  const mm = minutes < 10 ? `0${minutes.toString()}` : minutes.toString();
+  const ss = seconds < 10 ? `0${seconds.toString()}` : seconds.toString();
+
+  return `${mm}:${ss}`;
+}
+
 class App extends React.Component {
   constructor(props) {
     super(props);
@@ -12,6 +21,7 @@ class App extends React.Component {
   }
 
   render() {
+    const timeLeftInSeconds = 25 * 60;
     return (
       <div className="app">
         <h1 className="app__title">Pomodoro Clock</h1>
@@ -31,7 +41,12 @@ class App extends React.Component {
           incrementID="session-increment"
           durationID="session-length"
         />
-        <Countdown label="Session" timeLeft={25} labelID="timer-label" timeLeftID="time-left" />
+        <Countdown
+          label="Session"
+          timeLeft={timeLeftInSeconds}
+          labelID="timer-label"
+          timeLeftID="time-left"
+        />
         <Controls startStopID="start_stop" resetID="reset" />
       </div>
     );
@@ -69,13 +84,14 @@ Duration.propTypes = {
 };
 
 function Countdown({ label, timeLeft, labelID, timeLeftID }) {
+  const timeLeftMMSS = secondsToMMSS(timeLeft);
   return (
     <div className="countdown">
       <div id={labelID} className="countdown__label">
         {label}
       </div>
       <div id={timeLeftID} className="countdown__time-left">
-        {timeLeft}
+        {timeLeftMMSS}
       </div>
     </div>
   );
