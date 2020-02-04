@@ -1,32 +1,59 @@
 .app {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 100px;
+
   &__title {
   }
 }
 
 .controls {
+  display: flex;
+
   &__start-stop {
+    margin: 10px;
   }
   &__reset {
+    margin: 10px;
   }
 }
 
 .countdown {
+  padding-top: 20px;
+  padding-bottom: 10px;
+
   &__label {
+    text-align: center;
+    font-size: 1.5em;
+    font-weight: bold;
   }
   &__time-left {
+    text-align: center;
+    font-size: 3em;
+    color: rgb(54, 146, 42);
   }
 }
 
 .duration {
+  padding-top: 10px;
+  padding-bottom: 10px;
+
   &__label {
+    text-align: center;
+    font-size: 1.2em;
   }
 
   &__controls {
+    display: flex;
   }
 
   &__button {
+    margin: 5px;
   }
 
   &__value {
+    margin: 5px;
+    font-size: 1.5em;
   }
 }
