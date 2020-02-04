@@ -1,3 +1,4 @@
+/* eslint-disable jsx-a11y/media-has-caption */
 /* eslint-disable react/jsx-filename-extension */
 import PropTypes from 'prop-types';
 import React from 'react';
@@ -25,7 +26,9 @@ class App extends React.Component {
       timeLeftInSeconds: 25 * 60,
       isPlaying: false,
       isSession: true,
-      timeoutRef: null
+      timeoutRef: null,
+      audioId: 'beep',
+      audioSrc: 'http://soundbible.com/mp3/sms-alert-3-daniel_simon.mp3'
     };
 
     this.handleDecrementBreakLength = this.handleDecrementBreakLength.bind(this);
@@ -37,6 +40,8 @@ class App extends React.Component {
     this.start = this.start.bind(this);
     this.stop = this.stop.bind(this);
     this.decrementTimeLeft = this.decrementTimeLeft.bind(this);
+    this.playSound = this.playSound.bind(this);
+    this.stopSound = this.stopSound.bind(this);
   }
 
   handleDecrementBreakLength() {
@@ -116,6 +121,8 @@ class App extends React.Component {
       timeLeftInSeconds: state.defaultSessionLength * 60,
       isSession: true
     }));
+
+    this.stopSound();
   }
 
   handleStartStop() {
@@ -150,7 +157,9 @@ class App extends React.Component {
       let { timeLeftInSeconds, isSession } = state;
       const { sessionLength, breakLength } = state;
       timeLeftInSeconds -= 1;
-      if (timeLeftInSeconds < 0) {
+      if (timeLeftInSeconds === 0) {
+        this.playSound();
+      } else if (timeLeftInSeconds < 0) {
         if (isSession) {
           isSession = false;
           timeLeftInSeconds = breakLength * 60;
@@ -166,8 +175,28 @@ class App extends React.Component {
     this.start();
   }
 
+  playSound() {
+    const { audioId } = this.state;
+    const audioElement = document.getElementById(audioId);
+    audioElement.play();
+  }
+
+  stopSound() {
+    const { audioId } = this.state;
+    const audioElement = document.getElementById(audioId);
+    audioElement.pause();
+    audioElement.currentTime = 0;
+  }
+
   render() {
-    const { timeLeftInSeconds, breakLength, sessionLength, isSession } = this.state;
+    const {
+      timeLeftInSeconds,
+      breakLength,
+      sessionLength,
+      isSession,
+      audioId,
+      audioSrc
+    } = this.state;
     return (
       <div className="app">
         <h1 className="app__title">Pomodoro Clock</h1>
@@ -203,6 +232,7 @@ class App extends React.Component {
           onResetClick={this.handleReset}
           onStartStopClick={this.handleStartStop}
         />
+        <audio id={audioId} className="audio" src={audioSrc} />
       </div>
     );
   }
